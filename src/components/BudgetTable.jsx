@@ -9,7 +9,6 @@ const BudgetTable = ({ expenses, displayData }) => {
 
   return (
     <div style={{ width: '100%' }}>
-      {/* CONTENEDOR CON SCROLL LIMITADO A 2-3 TARJETAS */}
       <div className="scrollable-container">
         <table className="responsive-table" style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white' }}>
           <thead className="hide-on-mobile">
@@ -26,7 +25,10 @@ const BudgetTable = ({ expenses, displayData }) => {
               const esReducido = row.disponibleDelDia < row.baseFija;
               const statusGasto = row.gastosHoy <= 0 ? 'none' : (row.gastosHoy <= row.baseFija ? 'good' : (row.gastosHoy <= row.disponibleDelDia ? 'warn' : 'danger'));
               
-              let msjGasto = statusGasto === 'good' ? "✅ Bajo base" : statusGasto === 'warn' ? "🧱 Usando ahorro" : statusGasto === 'danger' ? "🚨 Exceso" : "";
+              let msjGasto = statusGasto === 'good' ? "✅ Gastos bajo disponible diario" : statusGasto === 'warn' ? "🧱 Usando acumulado ayer" : statusGasto === 'danger' ? "🚨 Exceso de gasto diario" : "";
+
+              // Cálculo del sobrante que viene del día anterior
+              const sobranteAyer = row.disponibleDelDia - row.baseFija;
 
               return (
                 <tr key={row.dia}>
@@ -39,14 +41,25 @@ const BudgetTable = ({ expenses, displayData }) => {
                   <td style={styles.td} data-label="Base Diaria">
                     <div>
                       <strong>Q{row.baseFija.toFixed(2)}</strong>
-                      {row.ingresosHoy > 0 && <span style={styles.badgeExtra}>🚀 +Q{row.ingresosHoy.toFixed(2)}</span>}
+                      {row.ingresosHoy > 0 && <span style={styles.badgeExtra}>🚀 +Q{row.ingresosHoy.toFixed(2)} extra</span>}
                     </div>
                   </td>
 
+                  {/* COLUMNA DISPONIBLE CON EXPLICACIÓN MATEMÁTICA */}
                   <td style={{ ...styles.td, backgroundColor: esReducido ? '#fff3cd' : '#e8f5e9' }} data-label="Disponible hoy">
                     <div>
-                      <strong>Q{row.disponibleDelDia.toFixed(2)}</strong>
-                      {esReducido && <span style={{fontSize:'9px', color:'#856404', fontWeight:'bold'}}>⚠️ Saldo recortado</span>}
+                      <strong style={{fontSize: '1rem'}}>Q{row.disponibleDelDia.toFixed(2)}</strong>
+                      
+                      {/* LEYENDA ESPECÍFICA QUE PEDISTE */}
+                      <div style={{ fontSize: '9px', marginTop: '3px', lineHeight: '1.1', opacity: 0.8 }}>
+                        Q{row.baseFija.toFixed(2)} base {sobranteAyer >= 0 ? '+' : ''} Q{sobranteAyer.toFixed(2)} de ayer
+                      </div>
+
+                      {esReducido && (
+                        <span style={{fontSize:'9px', color:'#856404', fontWeight:'bold', display:'block', marginTop:'2px'}}>
+                          ⚠️ Saldo recortado
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -82,7 +95,7 @@ const BudgetTable = ({ expenses, displayData }) => {
 const styles = {
   th: { padding: '12px 5px', fontSize: '11px', borderBottom: '2px solid #2c3e50', textAlign: 'center' },
   td: { padding: '12px 5px', textAlign: 'center', borderBottom: '1px solid #eee' },
-  badgeExtra: { fontSize: '9px', color: '#155724', fontWeight: 'bold' }
+  badgeExtra: { fontSize: '9px', color: '#155724', fontWeight: 'bold', display: 'block' }
 };
 
 export default BudgetTable;

@@ -114,3 +114,137 @@ body {
     max-height: 500px; /* Ajuste fino para móviles */
   }
 }
+
+/* --- ESTILOS PROFESIONALES DE LOGIN --- */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+  padding: 20px;
+}
+
+.login-card {
+  background: white;
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.login-auth-section {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.login-header h1 {
+  margin: 10px 0;
+  color: #2c3e50;
+  font-size: 2.2rem;
+}
+
+.slogan {
+  color: #7f8c8d;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 1px solid #ddd;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.google-btn:hover {
+  background: #f1f1f1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.google-btn img {
+  width: 20px;
+}
+
+.login-info-section {
+  flex: 1.2;
+  padding: 40px;
+  background: #ffffff;
+  border-left: 1px solid #eee;
+}
+
+.login-info-section h3 {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.feature-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+}
+
+.feature-text strong {
+  display: block;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.feature-text p {
+  margin: 4px 0 0 0;
+  color: #666;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.instructions-box {
+  margin-top: 30px;
+  background: #e8f5e9;
+  padding: 15px;
+  border-radius: 12px;
+  color: #2e7d32;
+}
+
+.instructions-box h4 { margin: 0 0 10px 0; }
+
+.instructions-box ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.85rem;
+}
+
+.instructions-box li { margin-bottom: 5px; }
+
+/* Móvil */
+@media (max-width: 768px) {
+  .login-card {
+    flex-direction: column;
+  }
+  .login-info-section {
+    border-left: none;
+    border-top: 1px solid #eee;
+    padding: 30px 20px;
+  }
+}
