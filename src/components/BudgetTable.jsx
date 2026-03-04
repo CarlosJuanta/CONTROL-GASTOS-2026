@@ -38,7 +38,7 @@ const BudgetTable = ({ expenses, displayData }) => {
                     </span>
                   </td>
                   
-                  <td style={styles.td} data-label="Base Diaria">
+                  <td style={styles.td} data-label="Disponible Base Diario">
                     <div>
                       <strong>Q{row.baseFija.toFixed(2)}</strong>
                       {row.ingresosHoy > 0 && <span style={styles.badgeExtra}>🚀 +Q{row.ingresosHoy.toFixed(2)} extra</span>}
@@ -74,7 +74,7 @@ const BudgetTable = ({ expenses, displayData }) => {
                     </div>
                   </td>
 
-                  <td style={{ ...styles.td, backgroundColor: row.restanteDelDia < 0 ? '#e74c3c' : '#fffde7', color: row.restanteDelDia < 0 ? 'white' : 'black' }} data-label="Queda para mañana">
+                  <td style={{ ...styles.td, backgroundColor: row.restanteDelDia < 0 ? '#e74c3c' : '#fffde7', color: row.restanteDelDia < 0 ? 'white' : 'black' }} data-label="Disponible Restante hoy">
                     <div>
                       <strong>Q{row.restanteDelDia.toFixed(2)}</strong>
                       {row.restanteDelDia < 0 && <span style={{fontSize:'9px', fontWeight:'bold'}}>💸 En deuda</span>}

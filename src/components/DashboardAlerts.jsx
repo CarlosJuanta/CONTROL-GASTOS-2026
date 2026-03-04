@@ -40,12 +40,12 @@ const DashboardAlerts = ({ todayData, baseFija, saldoGlobalReal }) => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>📌 Monto base de hoy:</span> 
+            <span>📌 Disponible base diario:</span> 
             <strong>Q{baseVal.toFixed(2)}</strong>
           </div>
           
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>💰 Ahorro acumulado anterior:</span> 
+            <span>💰 Saldo acumulado anterior:</span> 
             <strong style={{ color: ahorroPrevio < 0 ? '#d9534f' : '#28a745' }}>
               {ahorroPrevio >= 0 ? '+' : ''}Q{ahorroPrevio.toFixed(2)}
             </strong>
@@ -53,7 +53,7 @@ const DashboardAlerts = ({ todayData, baseFija, saldoGlobalReal }) => {
 
           {gastosHoy > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#d9534f' }}>
-              <span>💸 Gastos ya registrados hoy:</span> 
+              <span>💸 Gastos registrados hoy:</span> 
               <strong>-Q{gastosHoy.toFixed(2)}</strong>
             </div>
           )}

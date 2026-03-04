@@ -10,11 +10,19 @@ const AddExpenseForm = ({ cycleId, baseDiaria, disponibleHoy }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const montoNum = parseFloat(formData.monto);
+    
     if (formData.tipo === "gasto" && montoNum > disponibleHoy) {
       if (!window.confirm(`⚠️ Excedes tu disponible. ¿Continuar?`)) return;
     }
-    await addTransaction(cycleId, formData);
-    setFormData({ ...formData, monto: "", motivo: "" });
+
+    try {
+      await addTransaction(cycleId, formData);
+      // MENSAJE DE CONFIRMACIÓN AÑADIDO
+      alert("✅ Registro guardado exitosamente");
+      setFormData({ ...formData, monto: "", motivo: "" });
+    } catch (error) {
+      alert("❌ Error al guardar el registro");
+    }
   };
 
   return (
