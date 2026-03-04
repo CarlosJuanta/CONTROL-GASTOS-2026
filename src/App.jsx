@@ -6,198 +6,131 @@ import BudgetTable from "./components/BudgetTable";
 import AddExpenseForm from "./components/AddExpenseForm";
 import DashboardAlerts from "./components/DashboardAlerts";
 
-// Servicios e Hooks
-import { getActiveCycle, subscribeToExpenses } from "./services/budgetService";
+import { getActiveCycle, subscribeToExpenses, closeCycle, getClosedCycles } from "./services/budgetService";
 import { useBudgetCalculator } from "./hooks/useBudgetCalculator";
 import { generatePDFReport } from "./services/reportService";
 
 function App() {
   const { user, logout } = useAuth();
   const [activeCycle, setActiveCycle] = useState(null);
+  const [history, setHistory] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState("dashboard");
   const [showFullProjection, setShowFullProjection] = useState(false);
 
-  // 1. Cargar el ciclo activo y suscribirse a las transacciones en tiempo real
-  useEffect(() => {
+  const initApp = async () => {
     if (!user) return;
+    setLoading(true);
+    try {
+      const cycle = await getActiveCycle(user.uid);
+      const closedCycles = await getClosedCycles(user.uid);
+      setActiveCycle(cycle);
+      setHistory(closedCycles);
+      setView("dashboard");
+    } catch (error) { console.error(error); } 
+    finally { setLoading(false); }
+  };
 
-    let unsubscribeExpenses = () => {};
+  useEffect(() => { initApp(); }, [user]);
 
-    const initApp = async () => {
-      setLoading(true);
-      try {
-        const cycle = await getActiveCycle(user.uid);
-        setActiveCycle(cycle);
-        
-        if (cycle) {
-          // Suscripción en tiempo real a la colección de gastos/ingresos
-          unsubscribeExpenses = subscribeToExpenses(cycle.id, (data) => {
-            setExpenses(data);
-          });
-        }
-      } catch (error) {
-        console.error("Error al inicializar la app:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useEffect(() => {
+    if (activeCycle) return subscribeToExpenses(activeCycle.id, (data) => setExpenses(data));
+  }, [activeCycle]);
 
-    initApp();
-    return () => unsubscribeExpenses();
-  }, [user]);
-
-  // 2. Procesar todos los datos financieros usando el Hook de cálculo
   const tableData = useBudgetCalculator(activeCycle, expenses);
-
-  // 3. Determinar qué fila corresponde a HOY para las alertas
   const now = new Date();
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  
   const todayIndex = tableData.findIndex(d => d.fecha === todayStr);
-  // Si no encuentra el día (ej. fuera de rango), usa el primero por defecto
-  const todayData = todayIndex !== -1 ? tableData[todayIndex] : tableData[0];
+  const todayData = todayIndex !== -1 ? tableData[todayIndex] : (tableData.length > 0 ? tableData[0] : null);
+  const displayData = showFullProjection ? tableData : tableData.slice(Math.max(0, todayIndex), todayIndex + 2);
+  const isReadOnly = activeCycle?.estado === "cerrado";
 
-  // 4. Filtrar datos para la tabla según la vista seleccionada (Resumida o Completa)
-  const displayData = showFullProjection 
-    ? tableData 
-    : tableData.slice(Math.max(0, todayIndex), todayIndex + 2);
-
-  // Pantallas de carga y Login
   if (!user) return <Login />;
-  if (loading) return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <h2>Cargando tu presupuesto...</h2>
-    </div>
-  );
+  if (loading) return <div style={{textAlign:'center', padding:'50px'}}>Cargando...</div>;
+
+  if (activeCycle && view === "edit") {
+    return <div className="main-app-container"><CreateCycle userId={user.uid} editingCycle={activeCycle} onCreated={initApp} onCancel={() => setView("dashboard")} /></div>;
+  }
+
+  if (view === "history") {
+    return (
+      <div className="main-app-container">
+        <nav className="navbar">
+          <div className="nav-mobile-top">
+             <button onClick={() => setView("dashboard")} style={{background:'transparent', color:'white', border:'1px solid white', borderRadius:'6px', padding:'5px 10px', cursor:'pointer'}}>⬅ Volver</button>
+             <span style={{fontWeight:'bold'}}>HISTORIAL</span>
+          </div>
+        </nav>
+        <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
+          {history.map(c => (
+            <div key={c.id} style={{background:'white', padding:'15px', borderRadius:'8px', marginBottom:'10px', display:'flex', justifyContent:'space-between', alignItems:'center', boxShadow:'0 2px 5px rgba(0,0,0,0.1)'}}>
+              <div><strong>{c.fechaInicio}</strong><br/><small>Q{c.montoInicial.toFixed(2)}</small></div>
+              <button onClick={() => { setActiveCycle(c); setView("dashboard"); }} style={{background:'#3498db', color:'white', border:'none', padding:'8px 12px', borderRadius:'6px', cursor:'pointer'}}>Ver 👁️</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ backgroundColor: '#f4f7f6', minHeight: '100vh', paddingBottom: '50px' }}>
-      
-      {/* BARRA DE NAVEGACIÓN */}
-      <nav style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        padding: '1rem 2rem', 
-        background: '#2c3e50', 
-        color: 'white',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
-      }}>
-        <span style={{ fontSize: '1.4em', fontWeight: 'bold' }}>💰 Control de Gastos 2026</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <span>Bienvenido, <strong>{user.displayName}</strong></span>
-          <button 
-            onClick={logout} 
-            style={{ 
-              background: '#e74c3c', 
-              color: 'white', 
-              border: 'none', 
-              padding: '8px 16px', 
-              borderRadius: '6px', 
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >Cerrar Sesión</button>
+    <div className="main-app-container">
+      <nav className="navbar">
+        <div className="nav-mobile-top">
+          <div className="nav-brand">
+            <span>💰 MI CONTROL</span>
+            {isReadOnly && <button onClick={initApp} style={{background:'#27ae60', color:'white', border:'none', padding:'4px 8px', borderRadius:'4px', fontSize:'11px', marginLeft:'10px', cursor:'pointer'}}>🏠 Hoy</button>}
+          </div>
+          <div className="nav-user-group">
+            <span className="nav-username">👤 {user.displayName}</span> 
+            <button style={{ marginLeft:'15px'}} onClick={() => setView("history")} className="btn-history-mobile">📜 Historial</button> 
+          </div>
+        </div>
+        <div className="nav-mobile-bottom">
+          <button onClick={logout} style={{background:'#e74c3c', color:'white', border:'none', padding:'6px 12px', borderRadius:'6px', cursor:'pointer', fontWeight:'bold', fontSize:'12px', marginLeft: '12px'}}>Salir</button>
         </div>
       </nav>
-      
-      {!activeCycle ? (
-        // Pantalla para crear ciclo si no hay uno activo
-        <CreateCycle userId={user.uid} onCreated={() => window.location.reload()} />
-      ) : (
-        <div style={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
-          
-          {/* TARJETA DE DESCRIPCIÓN DEL CICLO */}
-          <div style={{ 
-            background: '#fff', 
-            padding: '20px', 
-            borderRadius: '10px', 
-            borderLeft: '6px solid #3498db', 
-            marginBottom: '20px',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
-          }}>
-            <h4 style={{ margin: '0 0 5px 0', color: '#7f8c8d', fontSize: '12px', textTransform: 'uppercase' }}>Configuración del Ciclo</h4>
-            <p style={{ margin: 0, fontSize: '1.15em', color: '#2c3e50' }}>
-              🎯 Este ciclo inició con un global de <strong>Q{activeCycle.montoInicial.toFixed(2)}</strong> para 
-              <strong> {activeCycle.diasTotales} días</strong>, con una base diaria original de 
-              <strong> Q{activeCycle.baseDiariaFija.toFixed(2)}</strong>.
-            </p>
-          </div>
 
-          {/* ALERTAS DE EQUILIBRIO Y RESUMEN DE HOY */}
-          <DashboardAlerts 
-            todayData={todayData} 
-            baseFija={todayData?.baseFija || activeCycle.baseDiariaFija} 
-          />
+      <div style={{ marginTop: '20px' }}>
+        {isReadOnly && <div style={{background:'#2c3e50', color:'white', padding:'10px', borderRadius:'8px', marginBottom:'15px', textAlign:'center', fontSize:'13px'}}>⚠️ Modo Lectura (Ciclo Finalizado)</div>}
 
-          {/* FORMULARIO PARA AGREGAR GASTOS O INGRESOS EXTRA */}
-          <AddExpenseForm 
-            cycleId={activeCycle.id} 
-            baseDiaria={todayData?.baseFija || activeCycle.baseDiariaFija}
-            disponibleHoy={todayData?.disponibleDelDia || 0}
-          />
-
-          {/* BARRA DE ACCIONES (REPORTES Y VISTAS) */}
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            margin: '30px 0 15px 0',
-            borderBottom: '2px solid #ddd',
-            paddingBottom: '12px'
-          }}>
-            <h3 style={{ margin: 0, color: '#2c3e50' }}>
-              {showFullProjection ? "📅 Historial Completo" : "📱 Resumen del Día"}
-            </h3>
-            
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {/* BOTÓN PARA GENERAR PDF */}
-              <button 
-                onClick={() => generatePDFReport(activeCycle, tableData, user)}
-                style={{ 
-                  padding: '10px 20px', 
-                  borderRadius: '25px', 
-                  border: '2px solid #27ae60', 
-                  background: '#fff', 
-                  color: '#27ae60', 
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                📄 Descargar Reporte PDF
-              </button>
-
-              {/* BOTÓN TOGGLE VISTA */}
-              <button 
-                onClick={() => setShowFullProjection(!showFullProjection)} 
-                style={{ 
-                  padding: '10px 20px', 
-                  borderRadius: '25px', 
-                  border: 'none', 
-                  background: '#3498db', 
-                  color: 'white', 
-                  cursor: 'pointer', 
-                  fontWeight: 'bold',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                }}
-              >
-                {showFullProjection ? "👁️ Ver solo hoy" : "🔍 Ver proyección completa"}
-              </button>
+        {!activeCycle ? (
+          <CreateCycle userId={user.uid} onCreated={initApp} />
+        ) : (
+          <>
+            <div style={{ background: 'white', padding: '15px', borderRadius: '12px', borderLeft: '6px solid #3498db', marginBottom: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', fontSize: '14px' }}>
+               🎯 Presupuesto: <strong>Q{activeCycle.montoInicial.toFixed(2)}</strong> / {activeCycle.diasTotales} días.
+               {!isReadOnly && (
+                 <div style={{marginTop:'10px', display:'flex', gap:'10px'}}>
+                    <button onClick={() => setView("edit")} style={{background:'#f8f9fa', border:'1px solid #ddd', padding:'5px 10px', borderRadius: '5px', fontSize: '11px', fontWeight: 'bold', cursor:'pointer'}}>⚙️ Modificar</button>
+                    <button onClick={async () => {if(window.confirm("¿Finalizar?")){await closeCycle(activeCycle.id); initApp();}}} style={{background:'#f8f9fa', border:'1px solid #ddd', color:'#e74c3c', padding:'5px 10px', borderRadius: '5px', fontSize: '11px', fontWeight: 'bold', cursor:'pointer'}}>🚩 Finalizar</button>
+                 </div>
+               )}
             </div>
-          </div>
 
-          {/* TABLA PRINCIPAL DE DATOS */}
-          <BudgetTable 
-            cycle={activeCycle} 
-            expenses={expenses} 
-            displayData={displayData}
-          />
-        </div>
-      )}
+            <DashboardAlerts 
+              todayData={todayData} 
+              baseFija={activeCycle.baseDiariaFija} 
+              saldoGlobalReal={todayData?.disponibleGlobal || 0}
+            />
+            
+            {!isReadOnly && <AddExpenseForm cycleId={activeCycle.id} baseDiaria={todayData?.baseFija || activeCycle.baseDiariaFija} disponibleHoy={todayData?.restanteDelDia || 0} />}
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems:'center' }}>
+              <h4 style={{margin:0, color:'#2c3e50'}}>{showFullProjection ? "📅 Ciclo Completo" : "📱 Resumen Hoy"}</h4>
+              <div style={{display:'flex', gap:'8px'}}>
+                <button onClick={() => generatePDFReport(activeCycle, tableData, user)} style={{border:'2px solid #27ae60', background:'white', color:'#27ae60', padding:'8px 15px', borderRadius:'25px', fontWeight:'bold', fontSize:'12px', cursor:'pointer'}}>PDF</button>
+                <button onClick={() => setShowFullProjection(!showFullProjection)} style={{background:'#3498db', color:'white', border:'none', padding:'8px 15px', borderRadius:'25px', fontWeight:'bold', fontSize:'12px', cursor:'pointer'}}>
+                   {showFullProjection ? "👁️ Hoy" : "🔍 Todo"}
+                </button>
+              </div>
+            </div>
+
+            <BudgetTable cycle={activeCycle} expenses={expenses} displayData={isReadOnly ? tableData : displayData} />
+          </>
+        )}
+      </div>
     </div>
   );
 }

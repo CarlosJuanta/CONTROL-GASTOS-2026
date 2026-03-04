@@ -1,68 +1,116 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* RESET BÁSICO */
 body {
   margin: 0;
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* CONTENEDOR MAESTRO: Centra la app en PC y da aire en los bordes */
+.main-app-container {
+  max-width: 1000px; /* Ancho ideal para escritorio */
+  margin: 0 auto;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+/* NAVBAR RESPONSIVA (744px) */
+.navbar {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-direction: column;
+  background-color: #2c3e50;
+  color: white;
+  padding: 15px;
+  border-radius: 12px;
+  gap: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.nav-mobile-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@media (min-width: 744px) {
+  .navbar {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 15px 25px;
   }
-  a:hover {
-    color: #747bff;
+  .nav-mobile-top { width: auto; gap: 20px; }
+  .btn-history-mobile { width: auto !important; margin-left: 12px }
+}
+
+/* TABLA A TARJETAS (Móvil) */
+@media (max-width: 600px) {
+  .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
   }
-  button {
-    background-color: #f9f9f9;
+  .responsive-table thead { display: none; }
+  
+  .responsive-table tr {
+    margin-bottom: 20px;
+    border-radius: 15px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+  }
+
+  .responsive-table td {
+    display: flex;
+    justify-content: space-between; /* Etiqueta a la izquierda, Valor a la derecha */
+    align-items: center;
+    padding: 12px 15px !important;
+    border-bottom: 1px solid #f5f5f5;
+    min-height: 45px;
+  }
+
+  .responsive-table td::before {
+    content: attr(data-label); /* Usa el texto que pusimos en el JSX */
+    font-weight: 800;
+    font-size: 11px;
+    color: #464545;
+    text-transform: uppercase;
+    flex: 1;
+    text-align: left;
+  }
+
+  .responsive-table td > div {
+    flex: 2;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+} 
+
+
+/* Contenedor con Scroll para la tabla/tarjetas */
+.scrollable-container {
+  max-height: 520px; /* Altura aproximada para ver 2.5 - 3 tarjetas en móvil */
+  overflow-y: auto;  /* Scroll vertical */
+  padding: 5px;      /* Espacio para que las sombras no se corten */
+  border-radius: 12px;
+  /* Personalización del scrollbar (opcional para que se vea más pro) */
+}
+
+.scrollable-container::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollable-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+@media (max-width: 600px) {
+  .scrollable-container {
+    max-height: 500px; /* Ajuste fino para móviles */
   }
 }
