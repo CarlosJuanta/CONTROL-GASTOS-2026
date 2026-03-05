@@ -78,7 +78,7 @@ const BudgetTable = ({ expenses, displayData, todayStr }) => {
 
               // Lógica de colores de gastos
               const statusGasto = row.gastosHoy <= 0 ? 'none' : (row.gastosHoy <= row.baseFija ? 'good' : (row.gastosHoy <= row.disponibleDelDia ? 'warn' : 'danger'));
-              let msjGasto = statusGasto === 'good' ? "✅ Bajo base" : statusGasto === 'warn' ? "🧱 Usando ahorro" : statusGasto === 'danger' ? "🚨 Exceso" : "";
+              let msjGasto = statusGasto === 'good' ? "✅ Vas bien " : statusGasto === 'warn' ? "🧱 Usando acumulado ayer" : statusGasto === 'danger' ? "🚨 Exceso" : "";
               
               const esReducido = row.disponibleDelDia < row.baseFija;
               const sobranteAyer = row.disponibleDelDia - row.baseFija;

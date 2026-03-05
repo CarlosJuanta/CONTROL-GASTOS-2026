@@ -32,16 +32,22 @@ function App() {
     if (!user) return;
     setLoading(true);
     try {
-      const active = await getActiveCycle(user.uid);
-      const closed = await getClosedCycles(user.uid);
+      // Cargamos todos los ciclos (activos y cerrados)
       const all = await getCyclesByUser(user.uid);
-      setActiveCycle(active);
-      setHistory(closed);
+      const closed = await getClosedCycles(user.uid);
+      
       setAllCycles(all);
-      if (active) setView("dashboard");
-      else setView("list");
-    } catch (error) { console.error(error); } 
-    finally { setLoading(false); }
+      setHistory(closed);
+      
+      // CAMBIO CLAVE: Forzamos que la vista siempre sea la lista 
+      // y que no haya ningún ciclo seleccionado al arrancar.
+      setView("list");
+      setActiveCycle(null); 
+    } catch (error) {
+      console.error("Error al inicializar:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { initApp(); }, [user]);
@@ -127,12 +133,12 @@ function App() {
         <div style={styles.compactCard}>
           <div style={{display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:'10px'}}>
              <div style={{fontSize: '1rem'}}>💰 Ingreso: <strong>Q{activeCycle.ingresoTotal?.toFixed(2)}</strong></div>
-             <div style={{fontSize: '1rem', color: '#e74c3c'}}>🛑 Fijos: <strong>-Q{(activeCycle.ingresoTotal - activeCycle.montoInicial).toFixed(2)}</strong></div>
+             <div style={{fontSize: '1rem', color: '#e74c3c'}}>🛑 Gastos Fijos: <strong>-Q{(activeCycle.ingresoTotal - activeCycle.montoInicial).toFixed(2)}</strong></div>
           </div>
           {activeCycle.gastosFijos?.length > 0 && (
             <div style={styles.compactFijosList}>
               <button onClick={() => setShowFijos(!showFijos)} style={styles.btnLink}>{showFijos ? 'Ocultar fijos' : 'Ver detalle gastos fijos'}</button>
-              {showFijos && activeCycle.gastosFijos.map((g, idx) => <div key={idx} style={{fontSize:'11px', color:'#666'}}>• {g.motivo}: Q{parseFloat(g.monto).toFixed(2)}</div>)}
+              {showFijos && activeCycle.gastosFijos.map((g, idx) => <div key={idx} style={{fontSize:'12px', color:'#666'}}>• {g.motivo}: Q{parseFloat(g.monto).toFixed(2)}</div>)}
             </div>
           )}
           <div style={styles.highlightNeto}>
