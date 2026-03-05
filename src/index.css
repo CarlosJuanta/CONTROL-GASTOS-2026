@@ -248,3 +248,121 @@ body {
     padding: 30px 20px;
   }
 }
+
+/* --- RESET Y CONTENEDOR MAESTRO --- */
+body {
+  margin: 0;
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.main-app-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* --- NAVBAR RESPONSIVA REFORZADA --- */
+.navbar {
+  display: flex;
+  flex-direction: column; /* Apilado para móvil */
+  background-color: #2c3e50;
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  gap: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Fila Superior: Título, Nombre y Salir */
+.nav-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-brand-box {
+  font-weight: bold;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ecf0f1;
+}
+
+.nav-user-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-name-text {
+  font-size: 0.75em;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Corta el nombre con puntos si es muy largo */
+}
+
+/* Fila Inferior: Botones de navegación (Menú / Historial) */
+.nav-bottom {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+/* Botones dentro de la navbar */
+.btn-nav-action {
+  flex: 1; /* Ocupan todo el ancho en móvil */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-salir-nav {
+  background: #e74c3c;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+/* --- AJUSTE PARA PANTALLAS GRANDES (>= 744px) --- */
+@media (min-width: 744px) {
+  .navbar {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 15px 25px;
+  }
+
+  .nav-top {
+    width: auto;
+    gap: 20px;
+  }
+
+  .nav-bottom {
+    width: auto;
+    order: -1; /* Mueve el botón Menú al principio en PC */
+  }
+
+  .btn-nav-action {
+    flex: none;
+    padding: 6px 15px;
+  }
+
+  .nav-name-text {
+    max-width: none;
+    font-size: 0.9em;
+  }
+}
