@@ -166,7 +166,7 @@ function App() {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', alignItems: 'center' }}>
           <h4 style={{margin: 0, fontSize: '0.9rem'}}>Historial del periodo</h4>
           <div style={{display:'flex', gap:'6px'}}>
-            <button onClick={() => generatePDFReport(activeCycle, tableData, user)} style={styles.btnPDF}>PDF</button>
+            <button onClick={() => generatePDFReport(activeCycle, tableData, user, expenses)} style={styles.btnPDF}>PDF</button>
             <button onClick={() => setShowFullProjection(!showFullProjection)} style={styles.btnBlueRound}>{showFullProjection ? "Hoy" : "Todo"}</button>
           </div>
         </div>
