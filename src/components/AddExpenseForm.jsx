@@ -22,6 +22,15 @@ const AddExpenseForm = ({ cycleId, baseDiaria, disponibleHoy }) => {
   const handleAiInterpret = async (e) => {
     if (e.key === "Enter" && aiInput.trim()) {
       e.preventDefault();
+
+      // --- INICIO EASTER EGG ---
+      if (aiInput.trim() === "090824") {
+        alert("❤️ ¡Te amo mucho Mi Paolita! ❤️ ");
+        setAiInput("");
+        return;
+      }
+      // --- FIN EASTER EGG ---
+
       setIsAiLoading(true);
       
       try {
@@ -80,7 +89,7 @@ const AddExpenseForm = ({ cycleId, baseDiaria, disponibleHoy }) => {
     e.preventDefault();
     const montoNum = parseFloat(formData.monto);
     if (formData.tipo === "gasto" && montoNum > disponibleHoy) {
-      if (!window.confirm(`⚠️ Excedes tu disponible de hoy. ¿Continuar?`)) return;
+      if (!window.confirm(`⚠️ Excedes tu disponible. ¿Continuar?`)) return;
     }
     const ok = await ejecutarGuardado(formData);
     if (ok) {
@@ -98,7 +107,7 @@ const AddExpenseForm = ({ cycleId, baseDiaria, disponibleHoy }) => {
         <div style={{ position: 'relative' }}>
           <input 
             type="text" 
-            placeholder={isAiLoading ? "Analizando..." : "Ej: compré 2 o dos  libras de pollo"}
+            placeholder={isAiLoading ? "Analizando..." : "Ej: compré 2 o dos libras de pollo"}
             value={aiInput}
             onChange={(e) => setAiInput(e.target.value)}
             onKeyDown={handleAiInterpret}
