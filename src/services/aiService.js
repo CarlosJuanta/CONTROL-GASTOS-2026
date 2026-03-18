@@ -18,7 +18,10 @@ export const interpretarGastoConIA = async (textoUsuario, fechaReferencia) => {
           1. Solo acepta transacciones financieras claras. Si el texto es basura o ambiguo (ej: "1 helado" sin precio, o "tengo hambre"), responde ÚNICAMENTE: []
           2. Si el usuario indica cantidad y precio unitario (ej: "5 panes de a 1.25"), calcula el total (5 * 1.25 = 6.25).
           3. REGLAS DE FECHA: "ayer" (-1 día), "anteayer" (-2), "mañana" (+1). Si no se menciona, usa ${fechaReferencia}.
-          4. No inventes motivos genéricos. El motivo debe ser descriptivo.
+          4. Cantidades: "un", "una", "uno" valen 1.
+          5. Precios: La frase "de a" indica precio unitario (ej: "5 de a 1.50" = 7.50).
+          6. Si el texto es una compra clara (ej: "una manía de a 1 quetzal"), ES VÁLIDO. Monto: 1, Motivo: "Manía".
+          7. No inventes motivos genéricos. El motivo debe ser descriptivo.
           
           FORMATO DE SALIDA: Un ARRAY de objetos JSON:
           [{"monto": numero_total, "motivo": "texto", "metodo": "Efectivo" o "Tarjeta", "tipo": "gasto" o "ingreso", "fecha": "YYYY-MM-DD"}]
